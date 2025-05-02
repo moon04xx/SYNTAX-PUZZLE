@@ -44,7 +44,7 @@ empty.html # Placeholder or unused page (optional)
 ## 🚀 Getting Started
 
 1. Clone or download this repository.
-2. Open `username.html` in your browser or run it locally via `](https://github.com/moon04xx/syntax-puzzle)`.
+2. Open `username.html` in your browser or run it locally via `(https://github.com/moon04xx/syntax-puzzle)`.
 3. Log in with your playername.
 4. Start solving puzzles and climb the leaderboard!
 

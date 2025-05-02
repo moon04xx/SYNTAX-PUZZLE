@@ -16,17 +16,29 @@
 ## 📂 Project Structure
 
 project-folder/ 
+
 background.jpg # Background image asset 
+
 username.html # Username input / login page 
+
 start.html # Initial page that redirects to login or game 
+
 mainmenu.html # Main menu with Start Game and Leaderboard options 
+
 levelsmultiple.html # Difficulty level selection for Multiple Choice mode 
+
 easy.html # Easy-level Multiple Choice questions 
+
 medium.html # Medium-level Multiple Choice questions
+
 hard.html # Hard-level Multiple Choice questions
+
 debugmode.html # Debug Mode (code debugging challenge)
+
 complete.html # Challenge Completed screen
+
 leaderboard.html # Leaderboard showing user scores
+
 empty.html # Placeholder or unused page (optional)
 
 ## 🚀 Getting Started

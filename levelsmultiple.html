@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syntax Puzzle - Difficulty Selection</title>
+    <style>
+        /* Cyberpunk Base Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        body {
+            background-color: #0d0d0d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #00ffff;
+            background: #010a13 url('background.jpg') no-repeat center center/cover;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            border: 2px solid cyan;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 0.5rem;
+        }
+        
+        h2 {
+            font-size: 1rem;
+            color: #44bece;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        /* Binary Rain Effect */
+        .binary-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .binary-digit {
+            position: absolute;
+            color: rgba(0, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            user-select: none;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+            animation: fall linear infinite;
+        }
+        
+        /* Difficulty Selection Styles */
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .difficulty-option {
+            position: relative;
+            background: rgba(0, 30, 40, 0.7);
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 1.5rem 1rem;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .difficulty-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,255,255,0.1) 0%, transparent 100%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .difficulty-option:hover::before {
+            opacity: 1;
+        }
+        
+        .difficulty-option h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color:  #05eeff;
+        }
+        
+        .difficulty-option p {
+            font-size: 0.9rem;
+            color:  #00ffea;
+            margin-bottom: 1rem;
+        }
+        
+        .difficulty-bar {
+            height: 6px;
+            background: linear-gradient(to right, #00ff00, #ff0000);
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        
+        /* Difficulty Specific Styles */
+        .easy {
+            border-color: #0affef;
+            box-shadow: 0 0 15px rgba(45, 213, 255, 0.784);
+        }
+        
+        .medium {
+            border-color: #0affef;
+            box-shadow: 0 0 15px rgba(45, 213, 255, 0.784);
+        }
+        
+        .hard {
+            border-color: #0affef;
+            box-shadow: 0 0 15px rgba(45, 213, 255, 0.784);
+        }
+        
+        /* Select Button Styles */
+        .select-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            background: linear-gradient(to right, #00ffffc5, #008b8b51);
+            color: #000;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .select-btn:hover {
+            background: linear-gradient(to right, #00ffff, #008b8b);
+            box-shadow: 0 0 10px cyan;
+        }
+        
+        /* Selection Indicator */
+        .selected {
+            border-width: 3px;
+            transform: scale(1.05);
+            box-shadow: 0 0 25px currentColor !important;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .back-btn {
+            background: linear-gradient(to right, #ff0000, #ff000054);
+            color: #ffffff;
+            border: 1px solid #ff0000;
+        }
+        
+        .back-btn:hover {
+            background: linear-gradient(to right, #ff0000, #ff000054);
+            box-shadow: 0 0 15px #ff0000;
+        }
+        
+        /* Status Display */
+        .status {
+            margin-top: 1.5rem;
+            font-size: 15px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .status span {
+            color:  #ffff05;
+            font-weight: bold;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+        
+        .difficulty-option:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8) !important;
+            border-color: #00ffff !important;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="binary-rain" id="binaryRain"></div>
+    
+    <div class="container">
+        <h1>DIFFICULTY SELECTION</h1>
+        <h2>Choose Your Challenge Level</h2>
+        
+        <div class="difficulty-grid">
+            <!-- Easy Option -->
+            <div class="difficulty-option easy">
+                <h3>🌱 EASY</h3>
+                <div class="difficulty-bar" style="width: 35%"></div>
+                <p>Basic syntax quiz with simple logic</p>
+                <p>10 Questions: 1 minute</p>
+                <button class="select-btn" onclick="window.location.href='easy.html'">SELECT</button>
+            </div>
+            
+            <!-- Medium Option -->
+            <div class="difficulty-option medium">
+                <h3>🚀 MEDIUM</h3>
+                <div class="difficulty-bar" style="width: 70%"></div>
+                <p>Moderate syntax quiz with some complexity</p>
+                <p>10 Questions: 45 seconds</p>
+                <button class="select-btn" onclick="window.location.href='medium.html'">SELECT</button>
+            </div>
+            
+            <!-- Hard Option -->
+            <div class="difficulty-option hard">
+                <h3>💻 HARD</h3>
+                <div class="difficulty-bar" style="width: 100%"></div>
+                <p>Complex syntax quiz requiring advanced logic</p>
+                <p>10 Questions: 30 seconds</p>
+                <button class="select-btn" onclick="window.location.href='hard.html'">SELECT</button>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn back-btn" onclick="window.location.href='mainmenu.html'">Main Menu</button>
+        </div>
+        
+        <p class="status">Select a difficulty to begin</p>
+    </div>
+
+    <script>
+        // Binary Rain Effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const binaryRain = document.getElementById('binaryRain');
+            
+            function createBinaryRain() {
+                const columns = Math.floor(window.innerWidth / 20);
+                
+                for (let i = 0; i < columns; i++) {
+                    const digit = document.createElement('div');
+                    digit.className = 'binary-digit';
+                    digit.textContent = Math.random() > 0.5 ? '1' : '0';
+                    digit.style.left = `${(i * 20) + Math.random() * 10}px`;
+                    digit.style.top = `${-20}px`;
+                    digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+                    digit.style.animationDelay = `${Math.random() * 5}s`;
+                    digit.style.opacity = Math.random();
+                    binaryRain.appendChild(digit);
+                    
+                    digit.style.animation = `fall ${5 + Math.random() * 10}s linear ${Math.random() * 5}s infinite`;
+                }
+            }
+
+            createBinaryRain();
+
+            window.addEventListener('resize', function() {
+                const existingDigits = document.querySelectorAll('.binary-digit');
+                existingDigits.forEach(digit => digit.remove());
+                createBinaryRain();
+            });
+        });
+
+        // Highlight selected difficulty when button is clicked
+        document.querySelectorAll('.select-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const option = this.parentElement;
+                document.querySelectorAll('.difficulty-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                
+                // Update status display
+                const difficulty = option.classList.contains('easy') ? 'EASY' : 
+                                 option.classList.contains('medium') ? 'MEDIUM' : 'HARD';
+                document.querySelector('.status').innerHTML = `Selected: <span>${difficulty}</span> mode`;
+                
+                // Save selection
+                localStorage.setItem('selectedDifficulty', option.classList[1]);
+            });
+        });
+        
+        // Add hover event listeners for difficulty options
+        document.querySelectorAll('.difficulty-option').forEach(option => {
+            option.addEventListener('mouseenter', function() {
+                const difficulty = this.classList.contains('easy') ? 'EASY' : 
+                                 this.classList.contains('medium') ? 'MEDIUM' : 'HARD';
+                document.querySelector('.status').innerHTML = `Hovering: <span>${difficulty}</span> mode`;
+                
+                // Add temporary hover class
+                this.classList.add('hover-highlight');
+            });
+            
+            option.addEventListener('mouseleave', function() {
+                // Remove temporary hover class
+                this.classList.remove('hover-highlight');
+                
+                const selectedOption = document.querySelector('.selected');
+                if (selectedOption) {
+                    const difficulty = selectedOption.classList.contains('easy') ? 'EASY' : 
+                                     selectedOption.classList.contains('medium') ? 'MEDIUM' : 'HARD';
+                    document.querySelector('.status').innerHTML = `Selected: <span>${difficulty}</span> mode`;
+                } else {
+                    document.querySelector('.status').innerHTML = 'Select a difficulty to begin';
+                }
+            });
+        });
+        
+        // Load previously selected difficulty if exists, otherwise select none
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedDifficulty = localStorage.getItem('selectedDifficulty');
+            if (savedDifficulty) {
+                const option = document.querySelector(`.${savedDifficulty}`);
+                if (option) {
+                    option.classList.add('selected');
+                    const difficulty = option.classList.contains('easy') ? 'EASY' : 
+                                     option.classList.contains('medium') ? 'MEDIUM' : 'HARD';
+                    document.querySelector('.status').innerHTML = `Selected: <span>${difficulty}</span> mode`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

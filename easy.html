@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Syntax Puzzle - Easy Mode</title>
+    <style>
+      /* Cyberpunk Base Styles */
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Share Tech Mono", monospace;
+      }
+
+      body {
+        background-color: #0d0d0d;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: #00ffff;
+        background: #010a13 url("background.jpg") no-repeat center center/cover;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Binary Rain Effect */
+      .binary-rain {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .binary-digit {
+        position: absolute;
+        color: rgba(0, 255, 255, 0.3);
+        font-family: "Orbitron", monospace;
+        font-size: 16px;
+        user-select: none;
+        text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        animation: fall linear infinite;
+      }
+
+      @keyframes fall {
+        to {
+          transform: translateY(100vh);
+        }
+      }
+
+      .main-container {
+        width: 90%;
+        max-width: 1200px;
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .container {
+        width: 50%;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        border: 2px solid cyan;
+        animation: fadeIn 1s ease-out;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .container::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          to bottom right,
+          rgba(0, 255, 255, 0.1) 0%,
+          rgba(0, 255, 255, 0) 20%,
+          rgba(0, 255, 255, 0) 80%,
+          rgba(0, 255, 255, 0.1) 100%
+        );
+        transform: rotate(30deg);
+        z-index: -1;
+        animation: scan 8s linear infinite;
+      }
+
+      .feedback-container {
+        width: 50%;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        border: 2px solid cyan;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        color: #00ffff;
+        text-shadow: 0 0 15px #00ffff;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-family: "Orbitron", sans-serif;
+        letter-spacing: 2px;
+        position: relative;
+      }
+      h1::after {
+        content: "";
+        display: block;
+        width: 100px;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #00ffff, transparent);
+        margin: 10px auto;
+      }
+      /* Stats Container */
+      .stats-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        background: rgba(0, 20, 30, 0.7);
+        border: 2px solid #0affef;
+        border-radius: 10px;
+        padding: 13px;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stats-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 255, 255, 0.1),
+          transparent
+        );
+        transform: translateX(-100%);
+        transition: transform 0.5s;
+      }
+
+      .stats-container:hover::before {
+        transform: translateX(100%);
+      }
+
+      .timer-container {
+        width: 60%;
+        font-size: 18px;
+        color: hsl(53, 100%, 51%);
+        font-family: "Orbitron", sans-serif;
+        display: flex;
+        align-items: center;
+        padding: 5px 15px;
+        border-right: 1px solid rgba(0, 255, 255, 0.3);
+      }
+
+      .timer {
+        font-weight: bold;
+        color: #ff0000;
+        margin-left: 5px;
+        transition: all 0.3s;
+      }
+
+      .score-container {
+        width: 40%;
+        font-size: 18px;
+        color: #00ffff;
+        font-family: "Orbitron", sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 5px 15px;
+      }
+
+      .score {
+        font-weight: bold;
+        color: #6fff00;
+        margin-left: 5px;
+        transition: all 0.3s;
+      }
+
+      /* Question Section */
+      .question-container {
+        background: rgba(0, 30, 40, 0.7);
+        border: 2px solid #0affef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0 15px rgba(45, 213, 255, 0.5);
+        min-height: 300px;
+        position: relative;
+      }
+
+      .question-text {
+        font-family: "Orbitron", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 15px;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        color: #aaffff;
+        text-align: center;
+      }
+
+      .code-snippet {
+        background: rgba(0, 10, 20, 0.8);
+        border: 1px solid #00ffff;
+        border-radius: 5px;
+        padding: 1.2rem;
+        font-family: "Courier New", monospace;
+        margin: 1.2rem 0;
+        color: #00ff88;
+        overflow-x: auto;
+        position: relative;
+      }
+
+      .code-snippet::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(to bottom, #00ffff, transparent);
+      }
+
+      /* Options Grid */
+      .options-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+        margin-bottom: 2rem;
+      }
+
+      .option {
+        background: rgba(0, 20, 30, 0.7);
+        border: 2px solid #0affef;
+        border-radius: 8px;
+        padding: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: #aaffff;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .option::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(0, 255, 255, 0.1),
+          transparent
+        );
+        transform: translateX(-100%);
+        transition: transform 0.5s;
+      }
+
+      .option:hover {
+        background: rgba(0, 255, 255, 0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 255, 255, 0.3);
+      }
+
+      .option:hover::before {
+        transform: translateX(100%);
+      }
+
+      .option.correct {
+        background: rgba(0, 255, 0, 0.2);
+        border-color: #00ff00;
+        color: #84ff00;
+        animation: pulseCorrect 0.5s;
+      }
+
+      .option.incorrect {
+        background: rgba(255, 0, 0, 0.2);
+        border-color: #ff0000;
+        color: #ff0000;
+        animation: shake 0.5s;
+      }
+
+      /* Feedback Section */
+      .feedback {
+        background: rgba(0, 30, 40, 0.7);
+        border: 2px solid #0affef;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 0 15px rgba(45, 213, 255, 0.5);
+        min-height: 250px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        font-size: 15px;
+      }
+
+      .feedback::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          transparent,
+          rgba(0, 255, 255, 0.05),
+          transparent
+        );
+        z-index: -1;
+      }
+
+      .feedback.correct {
+        background: rgba(0, 255, 0, 0.1);
+        border-color: #00ff00;
+        color: #84ff00;
+      }
+      .feedback.incorrect {
+        background: rgba(255, 0, 0, 0.1);
+        border-color: #ff0000;
+        color: #ff0000;
+      }
+
+      /* Hint/Riddle Section */
+      .hint-container {
+        background: rgba(40, 40, 10, 0.7);
+        border: 1px solid hsl(53, 100%, 51%);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 0 10px rgba(249, 241, 7, 0.958);
+      }
+
+      .hint-title {
+        color: #ebff09;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .hint-text {
+        color: #ffff05;
+        line-height: 1.5;
+      }
+
+      /* Example Code Section */
+      .example-container {
+        background: rgba(10, 38, 40, 0.7);
+        border: 1px solid rgb(0, 255, 229);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 1.5rem;
+        box-shadow: 0 0 10px rgb(0, 255, 229);
+        display: none;
+      }
+
+      .example-title {
+        color: #00fff7;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .example-code {
+        color: #1aff00;
+        line-height: 1.5;
+        font-family: "Courier New", monospace;
+        white-space: pre-wrap;
+        background: rgba(0, 0, 0, 0.547);
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+        font-size: 13px;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+
+      .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: "Orbitron", sans-serif;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transform: translateX(-100%);
+        transition: transform 0.5s;
+        z-index: -1;
+      }
+
+      .btn:hover::before {
+        transform: translateX(100%);
+      }
+
+      .next-btn {
+        background: rgb(33, 85, 7);
+        color: #020202;
+        border: 1px solid #00ff00;
+        display: none;
+      }
+
+      .next-btn:hover {
+        background: rgb(49, 123, 12);
+        box-shadow: 0 0 25px #00ff00;
+      }
+      .skip-btn {
+        background: #ffff053a;
+        color: hsl(65, 29%, 67%);
+        border: 1px solid #f6ff00;
+      }
+
+      .skip-btn:hover {
+        background: rgba(208, 188, 3, 0.548);
+        box-shadow: 0 0 25px #f6ff00;
+      }
+
+      .exit-btn {
+        background: rgba(255, 0, 0, 0.2);
+        color: #ff5555;
+        border: 1px solid #ff0000;
+      }
+
+      .exit-btn:hover {
+        background: rgba(255, 0, 0, 0.4);
+        box-shadow: 0 0 25px #ff0505;
+      }
+      .finish-btn {
+        background: rgba(0, 255, 255, 0.2);
+        color: #00ffff;
+        border: 1px solid #00ffff;
+        display: none;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scan {
+        0% {
+          transform: rotate(30deg) translateY(-100%);
+        }
+        100% {
+          transform: rotate(30deg) translateY(100%);
+        }
+      }
+
+      @keyframes pulseCorrect {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+          transform: translateX(-5px);
+        }
+        20%,
+        40%,
+        60%,
+        80% {
+          transform: translateX(5px);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1200px) {
+        .main-container {
+          flex-direction: column;
+        }
+
+        .container,
+        .feedback-container {
+          width: 100%;
+        }
+
+        .feedback-container {
+          margin-top: 20px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .btn {
+          padding: 0.8rem 1.2rem;
+          font-size: 0.9rem;
+        }
+
+        .question-text,
+        .code-snippet {
+          font-size: 1.1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Binary Rain Effect -->
+    <div class="binary-rain" id="binaryRain"></div>
+
+    <div class="main-container">
+      <!-- Left Container - Question -->
+      <div class="container">
+        <h1>EASY MODE</h1>
+
+        <!-- Stats Container -->
+        <div class="stats-container">
+          <div class="timer-container">
+            🕒 TIME: <span class="timer" id="time">60</span>s
+          </div>
+          <div class="score-container">
+            🎯 SCORE: <span class="score" id="score">0</span>
+          </div>
+        </div>
+
+        <div class="question-container">
+          <div class="question-text" id="question-text">
+            Loading question...
+          </div>
+          <div class="code-snippet" id="code-snippet"></div>
+
+          <div class="options-grid" id="options-grid">
+            <!-- Options will be inserted here by JavaScript -->
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn skip-btn" id="skip-btn">SKIP</button>
+          <button class="btn next-btn" id="next-btn">NEXT</button>
+          <button class="btn finish-btn" id="finish-btn">FINISH QUIZ</button>
+          <button class="btn exit-btn" onclick="exitGame()">EXIT</button>
+        </div>
+      </div>
+
+      <!-- Right Container - Feedback and Hint -->
+      <div class="feedback-container" id="feedback-container">
+        <div class="feedback" id="feedback">
+          <h3 style="margin-bottom: 15px; color: #00ffff">
+            ⏳ WAITING FOR YOUR ANSWER...
+          </h3>
+          <p>Select an option to see feedback!</p>
+        </div>
+        <div class="hint-container" id="hint-container">
+          <div class="hint-title">🧩 HINT RIDDLE:</div>
+          <div class="hint-text" id="hint-text">Loading riddle...</div>
+        </div>
+        <div class="example-container" id="example-container">
+          <div class="example-title">👨‍💻 EXAMPLE CODE:</div>
+          <div class="example-code" id="example-code"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Binary Rain Effect
+      document.addEventListener("DOMContentLoaded", function () {
+        const binaryRain = document.getElementById("binaryRain");
+
+        function createBinaryRain() {
+          const columns = Math.floor(window.innerWidth / 20);
+
+          for (let i = 0; i < columns; i++) {
+            const digit = document.createElement("div");
+            digit.className = "binary-digit";
+            digit.textContent = Math.random() > 0.5 ? "1" : "0";
+            digit.style.left = `${i * 20 + Math.random() * 10}px`;
+            digit.style.top = `${-20}px`;
+            digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+            digit.style.animationDelay = `${Math.random() * 5}s`;
+            digit.style.opacity = Math.random();
+            binaryRain.appendChild(digit);
+
+            digit.style.animation = `fall ${5 + Math.random() * 10}s linear ${
+              Math.random() * 5
+            }s infinite`;
+          }
+        }
+
+        createBinaryRain();
+
+        window.addEventListener("resize", function () {
+          const existingDigits = document.querySelectorAll(".binary-digit");
+          existingDigits.forEach((digit) => digit.remove());
+          createBinaryRain();
+        });
+      });
+
+      // Game variables
+      let currentScore = 0;
+      let timeLeft = 60;
+      let timer;
+      let currentQuestionIndex = 0;
+      let correctAnswers = 0;
+      let totalQuestions = 10;
+
+      // 10 Questions for easy mode with example codes and riddles
+      const questions = [
+        {
+          question:
+            "Which symbol is used to end a statement in languages like C, Java, and JavaScript?",
+          options: ["; (semicolon)", ". (period)", ": (colon)", ", (comma)"],
+          correctAnswer: 0,
+          explanation:
+            "In C, Java, and JavaScript, a semicolon (;) is used to terminate statements.",
+          example: 'int x = 5;\nprintf("Hello, world!");\nreturn 0;',
+          riddle:
+            "I'm a punctuation mark that's not quite a period,\nI end each line where code is torrid.\nWithout me, your program will fail,\nI'm the tiny mark that ends each tale.",
+        },
+        {
+          question:
+            "In Python, how do you define a block of code (such as inside a function)?",
+          options: [
+            "Using curly braces {}",
+            "Using indentation",
+            "Using parentheses ()",
+            "Using square brackets []",
+          ],
+          correctAnswer: 1,
+          explanation:
+            "Python uses indentation (whitespace) to define blocks of code, unlike languages that use curly braces.",
+          example:
+            'def my_function():\n    print("Hello")\n    print("World")\n\nif True:\n    print("This is indented")',
+          riddle:
+            "I'm not a brace, not a bracket, not a key,\nBut I structure your code, you see.\nSpaces or tabs, it's all the same,\nI'm Python's way to play the game.",
+        },
+        {
+          question: "What is the correct syntax to declare a variable in Java?",
+          options: [
+            "num := 5;",
+            "var num = 5;",
+            "num = int(5);",
+            "int num = 5;",
+          ],
+          correctAnswer: 3,
+          explanation:
+            "In Java, variables are declared by first specifying the type, then the variable name, followed by an equals sign and value.",
+          example:
+            'int age = 25;\ndouble price = 19.99;\nString name = "Alice";\nboolean isActive = true;',
+          riddle:
+            "First comes the type, then the name,\nEquals and value, it's all the same.\nEnd with me, the line's last friend,\nWithout me, your code won't mend.",
+        },
+        {
+          question: "How do you write a single-line comment in C++?",
+          options: [
+            "# This is a comment",
+            "<!-- This is a comment -->",
+            "// This is a comment",
+            "-- This is a comment",
+          ],
+          correctAnswer: 2,
+          explanation:
+            "Single-line comments in C++ start with double slashes (//).",
+          example:
+            "// This is a single-line comment\nint x = 5; // You can also comment after code\n\n/* \nThis is a \nmulti-line comment \n*/",
+          riddle:
+            "Two slashes side by side,\nAfter them your thoughts can hide.\nNot for code, just for you,\nExplaining what the code will do.",
+        },
+        {
+          question:
+            "Which of the following is the correct way to define a function in JavaScript?",
+          options: [
+            "function myFunction() { }",
+            "def myFunction():",
+            "function: myFunction() {}",
+            "func myFunction() {}",
+          ],
+          correctAnswer: 0,
+          explanation:
+            "In JavaScript, functions are defined using the 'function' keyword followed by the function name and parentheses.",
+          example:
+            'function greet(name) {\n  return "Hello, " + name;\n}\n\n// Arrow function (ES6+)\nconst add = (a, b) => a + b;',
+          riddle:
+            "I'm a keyword that starts the fun,\nFollowed by a name when I'm done.\nParentheses and curly braces,\nI contain code in many places.",
+        },
+        {
+          question: "In C, which symbol is used for 'address of' operator?",
+          options: ["&", "*", "#", "@"],
+          correctAnswer: 0,
+          explanation:
+            "In C, the '&' symbol is used to get the address of a variable.",
+          example:
+            'int x = 10;\nint *ptr = &x; // ptr now holds the address of x\n\nprintf("Address of x: %p", &x);',
+          riddle:
+            "I'm a single character, quite small,\nI point to where values sprawl.\nNot the star, but just as key,\nI show where in memory.",
+        },
+        {
+          question: "Which keyword is used to create a constant in JavaScript?",
+          options: ["var", "constant", "const", "let"],
+          correctAnswer: 2,
+          explanation:
+            "In JavaScript, 'const' is used to declare a constant variable whose value cannot be changed.",
+          example:
+            "const PI = 3.14159;\nconst MAX_USERS = 100;\n\n// This will cause an error:\n// PI = 3.14; // TypeError: Assignment to constant variable.",
+          riddle:
+            "I'm a keyword that means stay,\nMy values never fade away.\nOnce assigned, they're locked in tight,\nTry to change? That's not right!",
+        },
+        {
+          question: "What is the correct way to start a for loop in C?",
+          options: [
+            "for i in range(0,10):",
+            "foreach (i in 0..10)",
+            "for i = 1 to 10",
+            "for (int i = 0; i < 10; i++)",
+          ],
+          correctAnswer: 3,
+          explanation:
+            "In C, a for loop is written with initialization, condition, and increment separated by semicolons inside parentheses.",
+          example:
+            'for (int i = 0; i < 10; i++) {\n  printf("%d ", i);\n}\n// Output: 0 1 2 3 4 5 6 7 8 9',
+          riddle:
+            "Three parts in me you'll see,\nInit, test, increment - all three.\nI loop around while true's the case,\nBreak or false - I leave no trace.",
+        },
+        {
+          question:
+            "Which syntax correctly checks if 'a' is equal to 'b' in Java?",
+          options: ["if (a = b)", "if (a == b)", "if (a === b)", "if (a != b)"],
+          correctAnswer: 1,
+          explanation:
+            "In Java, '==' checks if two values are equal. '=' is for assignment, not comparison.",
+          example:
+            'int a = 5;\nint b = 5;\n\nif (a == b) {\n  System.out.println("Equal");\n} else {\n  System.out.println("Not equal");\n}',
+          riddle:
+            "Two equals signs in a row,\nComparing values, this I do.\nOne alone would just assign,\nBut two will test and help you find.",
+        },
+        {
+          question:
+            "In Python, what is the correct way to start a function definition?",
+          options: [
+            "function my_function()",
+            "def my_function():",
+            "func my_function()",
+            "define my_function():",
+          ],
+          correctAnswer: 1,
+          explanation:
+            "In Python, functions are defined using the 'def' keyword followed by the function name and parentheses.",
+          example:
+            'def greet(name):\n    return f"Hello, {name}!"\n\n# Function call\nprint(greet("Alice"))  # Output: Hello, Alice!',
+          riddle:
+            "Three letters start the game,\nDefining functions is my aim.\nFollowed by a name so sweet,\nThen parameters - my treat.",
+        },
+      ];
+
+      // DOM elements
+      const questionTextEl = document.getElementById("question-text");
+      const codeSnippetEl = document.getElementById("code-snippet");
+      const optionsGridEl = document.getElementById("options-grid");
+      const feedbackEl = document.getElementById("feedback");
+      const hintTextEl = document.getElementById("hint-text");
+      const exampleContainerEl = document.getElementById("example-container");
+      const exampleCodeEl = document.getElementById("example-code");
+      const timeEl = document.getElementById("time");
+      const scoreEl = document.getElementById("score");
+      const skipBtn = document.getElementById("skip-btn");
+      const nextBtn = document.getElementById("next-btn");
+      const finishBtn = document.getElementById("finish-btn");
+
+      // Initialize game
+      function initGame() {
+        currentScore = 0;
+        correctAnswers = 0;
+        timeLeft = 60;
+        currentQuestionIndex = 0;
+        updateScore();
+        startTimer();
+        loadQuestion();
+      }
+
+      // Load a question
+      function loadQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+          finishQuiz();
+          return;
+        }
+
+        timeLeft = 60;
+        updateTimer();
+
+        feedbackEl.className = "feedback";
+        feedbackEl.innerHTML = `
+                <h3 style="margin-bottom: 15px; color: #00ffff;">⏳ WAITING FOR YOUR ANSWER...</h3>
+                <p>Select an option to see feedback and reveal the hint!</p>
+            `;
+
+        // Hide example container and clear hint
+        exampleContainerEl.style.display = "none";
+
+        // Show the riddle immediately
+        const currentQuestion = questions[currentQuestionIndex];
+        hintTextEl.textContent = currentQuestion.riddle;
+
+        nextBtn.style.display = "none";
+        skipBtn.style.display = "inline-block";
+        finishBtn.style.display = "inline-block";
+
+        questionTextEl.textContent = currentQuestion.question;
+        codeSnippetEl.textContent = currentQuestion.code || "";
+
+        optionsGridEl.innerHTML = "";
+        currentQuestion.options.forEach((option, index) => {
+          const optionEl = document.createElement("div");
+          optionEl.className = "option";
+          optionEl.textContent = option;
+          optionEl.addEventListener("click", () => selectAnswer(index));
+          optionsGridEl.appendChild(optionEl);
+        });
+      }
+
+      // Handle answer selection
+      function selectAnswer(selectedIndex) {
+        clearInterval(timer);
+        skipBtn.style.display = "none";
+
+        const currentQuestion = questions[currentQuestionIndex];
+        const options = document.querySelectorAll(".option");
+
+        options.forEach((option) => {
+          option.style.pointerEvents = "none";
+        });
+
+        options[currentQuestion.correctAnswer].classList.add("correct");
+        if (selectedIndex !== currentQuestion.correctAnswer) {
+          options[selectedIndex].classList.add("incorrect");
+        }
+
+        const pointsEarned = Math.floor(timeLeft / 5) + 10;
+
+        if (selectedIndex === currentQuestion.correctAnswer) {
+          feedbackEl.className = "feedback correct";
+          feedbackEl.innerHTML = `
+                    <h3 style="margin-bottom: 15px; #00ff88;">✅ CORRECT!</h3>
+                    <p style="margin-bottom: 10px;">+${pointsEarned} points</p>
+                    <div class="explanation">
+                        <strong>Explanation:</strong> ${currentQuestion.explanation}
+                    </div>
+                `;
+          currentScore += pointsEarned;
+          correctAnswers++;
+        } else {
+          feedbackEl.className = "feedback incorrect";
+          feedbackEl.innerHTML = `
+                    <h3 style="margin-bottom: 15px; #ff5555;">❌ INCORRECT</h3>
+                    <p style="margin-bottom: 10px;">The correct answer is:</p>
+                    <p style="color: #84ff00; font-weight: bold; margin-bottom: 15px;">${
+                      currentQuestion.options[currentQuestion.correctAnswer]
+                    }</p>
+                    <div class="explanation">
+                        <strong>Explanation:</strong> ${
+                          currentQuestion.explanation
+                        }
+                    </div>
+                `;
+        }
+
+        exampleCodeEl.textContent =
+          currentQuestion.example || "No example available for this question.";
+        exampleContainerEl.style.display = "block";
+        hintTextEl.textContent = currentQuestion.riddle;
+
+        updateScore();
+        nextBtn.style.display = "inline-block";
+      }
+
+      // Skip to next question
+      function skipQuestion() {
+        clearInterval(timer);
+        currentQuestionIndex++;
+        loadQuestion();
+        startTimer();
+      }
+
+      // Load next question
+      function nextQuestion() {
+        currentQuestionIndex++;
+        loadQuestion();
+        startTimer();
+      }
+
+      // Finish the quiz
+      function finishQuiz() {
+        // Save results to localStorage
+        localStorage.setItem("finalScore", currentScore);
+        localStorage.setItem("correctAnswers", correctAnswers);
+        localStorage.setItem("totalQuestions", questions.length);
+        localStorage.setItem("difficulty", "easy");
+
+        window.location.href = "complete.html";
+      }
+
+      // Update score display
+      function updateScore() {
+        scoreEl.textContent = currentScore;
+      }
+
+      // Timer functions
+      function startTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => {
+          timeLeft--;
+          updateTimer();
+
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            timeEl.textContent = "0";
+            skipQuestion();
+          }
+        }, 1000);
+      }
+
+      function updateTimer() {
+        timeEl.textContent = timeLeft;
+
+        if (timeLeft <= 10) {
+          timeEl.style.color = "#ff0000";
+          timeEl.style.textShadow = "0 0 10px #ff0000";
+        } else {
+          timeEl.style.color = "#ffcc00";
+          timeEl.style.textShadow = "none";
+        }
+      }
+
+      // Exit game
+      function exitGame() {
+        window.location.href = "mainmenu.html";
+      }
+
+      // Event listeners
+      skipBtn.addEventListener("click", skipQuestion);
+      nextBtn.addEventListener("click", nextQuestion);
+      finishBtn.addEventListener("click", finishQuiz);
+
+      // Start the game
+      document.addEventListener("DOMContentLoaded", initGame);
+    </script>
+  </body>
+</html>

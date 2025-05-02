@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Debugger - Cyber Edition</title>
+    <style>
+        /* Cyberpunk Base Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        /* Binary Rain Effect */
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .binary-digit {
+            position: absolute;
+            color: rgba(0, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            user-select: none;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+        
+        body {
+            background-color: #0d0d0d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #00ffff;
+            background: #010a13 url('background.jpg') no-repeat center center/cover;
+            overflow-x: hidden;
+        }
+        
+        .main-container {
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 60%;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            border: 2px solid cyan;
+            animation: fadeIn 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(0, 255, 255, 0.1) 0%,
+                rgba(0, 255, 255, 0) 20%,
+                rgba(0, 255, 255, 0) 80%,
+                rgba(0, 255, 255, 0.1) 100%
+            );
+            transform: rotate(30deg);
+            z-index: -1;
+            animation: scan 8s linear infinite;
+        }
+        
+        .feedback-container {
+            width: 40%;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            border: 2px solid cyan;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 15px #00ffff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            margin: 10px auto;
+        }
+        
+        /* Difficulty Selector */
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .difficulty-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            font-family: 'Orbitron', sans-serif;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .difficulty-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+            z-index: -1;
+        }
+        
+        .difficulty-btn:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .beginner-btn {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+        }
+        
+        .intermediate-btn {
+            background: rgba(255, 234, 0, 0.2);
+            color:  #ebff09;
+            border: 1px solid  #ebff09;
+        }
+        
+        .pro-btn {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+            border: 1px solid #ff0000;
+        }
+        
+        .difficulty-btn.active {
+            box-shadow: 0 0 15px;
+        }
+        
+        .beginner-btn.active {
+            box-shadow: 0 0 15px #00ff00;
+        }
+        
+        .intermediate-btn.active {
+            box-shadow: 0 0 15px  #ebff09;
+        }
+        
+        .pro-btn.active {
+            box-shadow: 0 0 15px #ff0000;
+        }
+        
+        /* Stats Container */
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            background: rgba(0, 20, 30, 0.7);
+            border: 2px solid #0affef;
+            border-radius: 10px;
+            padding: 13px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 255, 255, 0.1),
+                transparent
+            );
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+        
+        .stats-container:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .timer-container {
+            width: 60%;
+            font-size: 18px;
+            color: hsl(53, 100%, 51%);
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            padding: 5px 15px;
+            border-right: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .timer {
+            font-weight: bold;
+            color: #ff0000;
+            margin-left: 5px;
+            transition: all 0.3s;
+        }
+        
+        .score-container {
+            width: 40%;
+            font-size: 18px;
+            color: #00ffff;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 5px 15px;
+        }
+        
+        .score {
+            font-weight: bold;
+            color: #6fff00;
+            margin-left: 5px;
+            transition: all 0.3s;
+        }
+        
+        /* Question Section */
+        .question-container {
+            background: rgba(0, 30, 40, 0.7);
+            border: 2px solid #0affef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 15px rgba(45, 213, 255, 0.5);
+            min-height: 300px;
+            position: relative;
+        }
+        
+        .question-text {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 15px;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: #aaffff;
+            text-align: center;
+        }
+        
+        .code-editor {
+            background: rgba(0, 10, 20, 0.8);
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            padding: 1.2rem;
+            font-family: 'Courier New', monospace;
+            margin: 1.2rem 0;
+            color: #4dff00;
+            overflow-x: auto;
+            position: relative;
+            min-height: 200px;
+        }
+        
+        .code-editor::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, #00ffff, transparent);
+        }
+        
+        .code-input {
+            width: 100%;
+            min-height: 200px;
+            background: transparent;
+            border: none;
+            color: #44ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            white-space: pre;
+            tab-size: 4;
+        }
+        
+        .error-marker {
+            position: absolute;
+            background-color: rgba(255, 0, 0, 0.2);
+            border-bottom: 2px dashed #ff0000;
+            border-radius: 2px;
+        }
+        
+        /* Feedback Section */
+        .feedback {
+            background: rgba(0, 30, 40, 0.7);
+            border: 2px solid #0affef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(45, 213, 255, 0.5);
+            min-height: 250px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            font-size: 15px;
+        }
+        
+        .feedback::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                transparent,
+                rgba(0, 255, 255, 0.05),
+                transparent
+            );
+            z-index: -1;
+        }
+        
+        .feedback.correct {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+            color: #84ff00;
+        }
+        
+        .feedback.incorrect {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+        
+        /* Hint/Riddle Section */
+        .hint-container {
+            background: rgba(40, 40, 10, 0.7);
+            border: 1px solid hsl(53, 100%, 51%);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 0 10px rgba(249, 241, 7, 0.958);
+        }
+        
+        .hint-title {
+            color: #ebff09;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .hint-text {
+            color: #ffff05;
+            line-height: 1.5;
+        }
+        
+        /* Example Code Section */
+        .example-container {
+            background: rgba(10, 38, 40, 0.7);
+            border: 1px solid rgb(0, 255, 229);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 0 10px rgb(0, 255, 229);
+            display: none;
+        }
+        
+        .example-title {
+            color: #00fff7;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .example-code {
+            color: #1aff00;
+            line-height: 1.5;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            background: rgba(0, 0, 0, 0.547);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .check-btn {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+        }
+        
+        .check-btn:hover {
+            background: rgba(0, 255, 0, 0.4);
+            box-shadow: 0 0 25px #00ff00;
+        }
+        
+        .next-btn {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            border: 1px solid #00ffff;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            background: rgba(0, 255, 255, 0.4);
+            box-shadow: 0 0 25px #00ffff;
+        }
+        
+        .exit-btn {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff5555;
+            border: 1px solid #ff0000;
+        }
+        
+        .exit-btn:hover {
+            background: rgba(255, 0, 0, 0.4);
+            box-shadow: 0 0 25px #ff0505;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes scan {
+            0% { transform: rotate(30deg) translateY(-100%); }
+            100% { transform: rotate(30deg) translateY(100%); }
+        }
+        
+        @keyframes pulseCorrect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .blinking {
+            animation: blink 1s infinite;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(0, 30, 40, 0.7);
+            border-radius: 5px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #00ff00, #ff0000);
+            width: 0%;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 255, 255, 0.3),
+                transparent
+            );
+            animation: progressScan 2s linear infinite;
+        }
+        
+        @keyframes progressScan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .container, .feedback-container {
+                width: 100%;
+            }
+            
+            .feedback-container {
+                margin-top: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .question-text, .code-editor {
+                font-size: 1.1rem;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                flex: 1 1 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Binary Rain Effect -->
+    <div class="binary-rain" id="binaryRain"></div>
+    
+    <div class="main-container">
+        <!-- Left Container - Question and Editor -->
+        <div class="container">
+            <h1 id="title">CODE DEBUGGER</h1>
+            
+            <!-- Difficulty Selector -->
+            <div class="difficulty-selector">
+                <button class="difficulty-btn beginner-btn active" id="beginner-btn">BEGINNER</button>
+                <button class="difficulty-btn intermediate-btn" id="intermediate-btn">INTERMEDIATE</button>
+                <button class="difficulty-btn pro-btn" id="pro-btn">PRO</button>
+            </div>
+            
+            <!-- Stats Container -->
+            <div class="stats-container">
+                <div class="timer-container">
+                    🕒 TIME: <span class="timer" id="time">60</span>s
+                </div>
+                <div class="score-container">
+                    🎯 SCORE: <span class="score" id="score">0</span>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-text" id="question-text">
+                    Select a difficulty level to start debugging!
+                </div>
+                
+                <div class="code-editor" id="code-editor">
+                    <textarea class="code-input" id="code-input" spellcheck="false" placeholder="Fix the code here..."></textarea>
+                    <div id="error-markers"></div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn check-btn" id="check-btn" disabled>CHECK CODE</button>
+                <button class="btn next-btn" id="next-btn" disabled>NEXT CHALLENGE</button>
+                <button class="btn exit-btn" id="exit-btn">EXIT DEBUGGER</button>
+            </div>
+        </div>
+        
+        <!-- Right Container - Feedback and Hint -->
+        <div class="feedback-container" id="feedback-container">
+            <div class="feedback" id="feedback">
+                <h3 style="margin-bottom: 15px; color: #00ffff;">⏳ WAITING FOR YOUR INPUT...</h3>
+                <p>Select a difficulty level and start debugging to see feedback!</p>
+            </div>
+            
+            <div class="hint-container" id="hint-container">
+                <div class="hint-title">🧩 HINT RIDDLE:</div>
+                <div class="hint-text" id="hint-text">Select a challenge to see a riddle hint!</div>
+            </div>
+            
+            <div class="example-container" id="example-container">
+                <div class="example-title">👨‍💻 SOLUTION:</div>
+                <div class="example-code" id="example-code"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Binary Rain Effect
+        function createBinaryRain() {
+            const binaryRain = document.getElementById('binaryRain');
+            const columns = Math.floor(window.innerWidth / 20);
+            
+            for (let i = 0; i < columns; i++) {
+                const digit = document.createElement('div');
+                digit.className = 'binary-digit';
+                digit.textContent = Math.random() > 0.5 ? '1' : '0';
+                digit.style.left = `${(i * 20) + Math.random() * 10}px`;
+                digit.style.top = `${-20}px`;
+                digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+                digit.style.animationDelay = `${Math.random() * 5}s`;
+                digit.style.opacity = Math.random();
+                binaryRain.appendChild(digit);
+            }
+        }
+
+        // Game variables
+        let currentScore = 0;
+        let timeLeft = 60;
+        let timer;
+        let currentQuestionIndex = 0;
+        let questionsAnswered = 0;
+        let currentDifficulty = 'beginner';
+        let questionsCorrect = 0;
+        
+        // Questions for different difficulty levels with riddles
+        const questions = {
+            beginner: [
+                {
+                    language: "JavaScript",
+                    question: "Fix the syntax errors in this JavaScript function that calculates the sum of two numbers:",
+                    originalCode: "function addNumbers(a, b) {\n    return a + b\n}",
+                    correctCode: "function addNumbers(a, b) {\n    return a + b;\n}",
+                    errors: [
+                        { line: 2, col: 13, length: 0, message: "Missing semicolon" }
+                    ],
+                    riddle: "I'm a punctuation mark that's not quite a period,\nI end each line where code is torrid.\nWithout me, your program will fail,\nI'm the tiny mark that ends each tale."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the syntax errors in this Python function that checks if a number is even:",
+                    originalCode: "def is_even(num)\n    return num % 2 == 0",
+                    correctCode: "def is_even(num):\n    return num % 2 == 0",
+                    errors: [
+                        { line: 0, col: 13, length: 0, message: "Missing colon" },
+                        { line: 1, col: 4, length: 0, message: "Missing indentation" }
+                    ],
+                    riddle: "I'm not a brace, not a bracket, not a key,\nBut I structure your code, you see.\nSpaces or tabs, it's all the same,\nI'm Python's way to play the game."
+                },
+                {
+                    language: "C",
+                    question: "Fix the syntax errors in this C program that prints 'Hello World':",
+                    originalCode: "#include <stdio.h>\n\nint main() {\n    printf(\"Hello World\")\n    return 0;\n}",
+                    correctCode: "#include <stdio.h>\n\nint main() {\n    printf(\"Hello World\");\n    return 0;\n}",
+                    errors: [
+                        { line: 3, col: 22, length: 0, message: "Missing semicolon" }
+                    ],
+                    riddle: "I'm a punctuation mark that's not quite a period,\nI end each line where code is torrid.\nWithout me, your program will fail,\nI'm the tiny mark that ends each tale."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the syntax error in this arrow function that doubles a number:",
+                    originalCode: "const double = num => \n    num * 2",
+                    correctCode: "const double = num => \n    num * 2;",
+                    errors: [
+                        { line: 1, col: 10, length: 0, message: "Missing semicolon" }
+                    ],
+                    riddle: "I'm a punctuation mark that's not quite a period,\nI end each line where code is torrid.\nWithout me, your program will fail,\nI'm the tiny mark that ends each tale."
+                },
+                {
+                    language: "HTML",
+                    question: "Fix the missing closing tag in this HTML snippet:",
+                    originalCode: "<div>\n    <p>Hello World\n</div>",
+                    correctCode: "<div>\n    <p>Hello World</p>\n</div>",
+                    errors: [
+                        { line: 1, col: 17, length: 0, message: "Missing closing </p> tag" }
+                    ],
+                    riddle: "I'm a pair that wraps content tight,\nOpen and close must be just right.\nForget to close and browsers fight,\nYour layout won't be quite alright."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the syntax error in this object literal:",
+                    originalCode: "const person = {\n    name: 'Alice'\n    age: 30\n};",
+                    correctCode: "const person = {\n    name: 'Alice',\n    age: 30\n};",
+                    errors: [
+                        { line: 2, col: 16, length: 0, message: "Missing comma after property" }
+                    ],
+                    riddle: "I separate items in a list,\nWithout me the compiler gets pissed.\nI'm not a dot, I'm not a space,\nI'm the mark that sets the pace."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the syntax error in this list comprehension:",
+                    originalCode: "squares = [x**2 for x in range(10)",
+                    correctCode: "squares = [x**2 for x in range(10)]",
+                    errors: [
+                        { line: 0, col: 30, length: 1, message: "Should be closing square bracket" }
+                    ],
+                    riddle: "I come in pairs to wrap things neat,\nSquare or curved or pointy feet.\nMatch me right or face defeat,\nYour code won't run, it's incomplete."
+                },
+                {
+                    language: "CSS",
+                    question: "Fix the syntax error in this CSS rule:",
+                    originalCode: ".button {\n    background-color: blue\n    color: white;\n}",
+                    correctCode: ".button {\n    background-color: blue;\n    color: white;\n}",
+                    errors: [
+                        { line: 2, col: 23, length: 0, message: "Missing semicolon" }
+                    ],
+                    riddle: "I'm a punctuation mark that's not quite a period,\nI end each line where code is torrid.\nWithout me, your program will fail,\nI'm the tiny mark that ends each tale."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the syntax error in this function call:",
+                    originalCode: "console.log('Hello, World!')",
+                    correctCode: "console.log('Hello, World!');",
+                    errors: [
+                        { line: 0, col: 25, length: 0, message: "Missing semicolon" }
+                    ],
+                    riddle: "I'm a punctuation mark that's not quite a period,\nI end each line where code is torrid.\nWithout me, your program will fail,\nI'm the tiny mark that ends each tale."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the syntax error in this print statement:",
+                    originalCode: "print('Hello, World!')",
+                    correctCode: "print('Hello, World!')",
+                    errors: [
+                        { line: 0, col: 0, length: 0, message: "No error, this is a trick question!" }
+                    ],
+                    riddle: "Sometimes the code is just fine,\nNo errors to find in this line.\nTrust your eyes, don't waste your time,\nThis one's correct, it works just fine!"
+                }
+            ],
+            intermediate: [
+                {
+                    language: "JavaScript",
+                    question: "Fix the logical error in this function that checks if a number is prime:",
+                    originalCode: "function isPrime(num) {\n    if (num <= 1) return false;\n    for (let i = 2; i < num; i++)\n        if (num % i === 0) return true;\n    return false;\n}",
+                    correctCode: "function isPrime(num) {\n    if (num <= 1) return false;\n    for (let i = 2; i < num; i++)\n        if (num % i === 0) return false;\n    return true;\n}",
+                    errors: [
+                        { line: 3, col: 24, length: 4, message: "Should return false when divisible" },
+                        { line: 4, col: 4, length: 4, message: "Should return true when no divisors found" }
+                    ],
+                    riddle: "I'm a function that checks with care,\nIf a number's special, rare.\nDivisible only by one and itself,\nFind my bugs, don't be a delf."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the syntax and logical errors in this Python implementation of bubble sort:",
+                    originalCode: "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j}",
+                    correctCode: "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]",
+                    errors: [
+                        { line: 4, col: 22, length: 1, message: "Should be n-i-1 to optimize" },
+                        { line: 6, col: 45, length: 1, message: "Closing bracket should be ]" }
+                    ],
+                    riddle: "I'm a sorting method, simple but slow,\nComparing neighbors, to and fro.\nWith each pass, the largest will rise,\nFix my bounds to optimize."
+                },
+                {
+                    language: "Java",
+                    question: "Fix the errors in this Java method that reverses a string:",
+                    originalCode: "public String reverseString(String str) {\n    String reversed = \"\";\n    for (int i = str.length(); i >= 0; i--) {\n        reversed += str.charAt(i);\n    }\n    return reversed;\n}",
+                    correctCode: "public String reverseString(String str) {\n    String reversed = \"\";\n    for (int i = str.length() - 1; i >= 0; i--) {\n        reversed += str.charAt(i);\n    }\n    return reversed;\n}",
+                    errors: [
+                        { line: 3, col: 27, length: 0, message: "Should start from length-1 to avoid index error" }
+                    ],
+                    riddle: "I take a string and flip it around,\nFrom back to front, it's newly found.\nBut start too far, you'll get a fright,\nAn index that's just not right."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the scope issue in this JavaScript code with closures:",
+                    originalCode: "for (var i = 0; i < 5; i++) {\n    setTimeout(function() {\n        console.log(i);\n    }, 100);\n}",
+                    correctCode: "for (let i = 0; i < 5; i++) {\n    setTimeout(function() {\n        console.log(i);\n    }, 100);\n}",
+                    errors: [
+                        { line: 0, col: 4, length: 3, message: "Should use let instead of var for block scope" }
+                    ],
+                    riddle: "I'm a loop that runs just fine,\nBut my variable's scope isn't by design.\nChange my declaration to make it right,\nAnd each iteration will log as it might."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the mutable default argument in this Python function:",
+                    originalCode: "def add_item(item, items=[]):\n    items.append(item)\n    return items",
+                    correctCode: "def add_item(item, items=None):\n    if items is None:\n        items = []\n    items.append(item)\n    return items",
+                    errors: [
+                        { line: 0, col: 24, length: 2, message: "Mutable default argument is dangerous" }
+                    ],
+                    riddle: "I'm a parameter with a default so neat,\nBut mutable ones can cause defeat.\nChange me to None to make it right,\nAnd initialize fresh each time in sight."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the incorrect array comparison in this function:",
+                    originalCode: "function arraysEqual(a, b) {\n    return a == b;\n}",
+                    correctCode: "function arraysEqual(a, b) {\n    if (a.length !== b.length) return false;\n    for (let i = 0; i < a.length; i++) {\n        if (a[i] !== b[i]) return false;\n    }\n    return true;\n}",
+                    errors: [
+                        { line: 1, col: 11, length: 0, message: "Direct comparison won't work for arrays" }
+                    ],
+                    riddle: "Comparing arrays is quite a task,\nElement by element you must ask.\nCheck each one, don't be too brash,\nOr your function will just crash."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the infinite recursion in this factorial function:",
+                    originalCode: "def factorial(n):\n    return n * factorial(n - 1)",
+                    correctCode: "def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)",
+                    errors: [
+                        { line: 1, col: 4, length: 0, message: "Missing base case" }
+                    ],
+                    riddle: "I call myself to solve a case,\nBut without an end I'll fill up space.\nAdd my stop or face disgrace,\nA stack overflow you'll have to face."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the incorrect use of 'this' in the event handler:",
+                    originalCode: "button.addEventListener('click', function() {\n    console.log(this.textContent);\n}.bind(null));",
+                    correctCode: "button.addEventListener('click', function() {\n    console.log(this.textContent);\n});",
+                    errors: [
+                        { line: 2, col: 1, length: 0, message: "Don't bind to null, keep 'this' context" }
+                    ],
+                    riddle: "I represent context in your call,\nBut bind me wrong and I'll make you fall.\nLeave me be or pass me right,\nOr your handler won't work right."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the incorrect file handling in this code:",
+                    originalCode: "file = open('data.txt', 'r')\ncontent = file.read()\n# Do something with content",
+                    correctCode: "with open('data.txt', 'r') as file:\n    content = file.read()\n    # Do something with content",
+                    errors: [
+                        { line: 0, col: 0, length: 0, message: "Should use context manager (with statement)" }
+                    ],
+                    riddle: "I'm a resource that needs to close,\nOr memory leaks will surely pose.\nWrap me up in a context neat,\nAnd I'll close up when complete."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the incorrect promise handling in this async function:",
+                    originalCode: "async function fetchData() {\n    const response = fetch('https://api.example.com/data');\n    const data = await response.json();\n    return data;\n}",
+                    correctCode: "async function fetchData() {\n    const response = await fetch('https://api.example.com/data');\n    const data = await response.json();\n    return data;\n}",
+                    errors: [
+                        { line: 1, col: 26, length: 0, message: "Missing await for fetch call" }
+                    ],
+                    riddle: "I'm a promise that runs async,\nBut without await I'll make you sick.\nWait for me or you will see,\nUndefined where data should be."
+                }
+            ],
+            pro: [
+                {
+                    language: "JavaScript",
+                    question: "Fix the memory leak in this React component with event listeners:",
+                    originalCode: "useEffect(() => {\n    window.addEventListener('resize', handleResize);\n    return () => {\n        // No cleanup\n    };\n}, []);",
+                    correctCode: "useEffect(() => {\n    window.addEventListener('resize', handleResize);\n    return () => {\n        window.removeEventListener('resize', handleResize);\n    };\n}, []);",
+                    errors: [
+                        { line: 4, col: 8, length: 0, message: "Missing cleanup for event listener" }
+                    ],
+                    riddle: "I'm a hook that runs with care,\nWhen component mounts to air.\nBut if I don't clean up my mess,\nMemory leaks will cause distress."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the race condition in this Python multithreaded counter:",
+                    originalCode: "from threading import Thread\n\ncounter = 0\n\ndef increment():\n    global counter\n    for _ in range(100000):\n        counter += 1\n\nthreads = [Thread(target=increment) for _ in range(10)]\nfor t in threads: t.start()\nfor t in threads: t.join()\nprint(counter)",
+                    correctCode: "from threading import Thread, Lock\n\ncounter = 0\nlock = Lock()\n\ndef increment():\n    global counter\n    for _ in range(100000):\n        with lock:\n            counter += 1\n\nthreads = [Thread(target=increment) for _ in range(10)]\nfor t in threads: t.start()\nfor t in threads: t.join()\nprint(counter)",
+                    errors: [
+                        { line: 1, col: 0, length: 0, message: "Need to import Lock" },
+                        { line: 7, col: 8, length: 0, message: "Need to add lock around counter increment" }
+                    ],
+                    riddle: "When threads compete to change a score,\nThe result may not be what's in store.\nAdd a guard to keep them neat,\nOr the count won't be complete."
+                },
+                {
+                    language: "C++",
+                    question: "Fix the dangling pointer in this C++ function:",
+                    originalCode: "int* createArray() {\n    int arr[3] = {1, 2, 3};\n    return arr;\n}",
+                    correctCode: "int* createArray() {\n    int* arr = new int[3] {1, 2, 3};\n    return arr;\n}",
+                    errors: [
+                        { line: 2, col: 4, length: 3, message: "Stack-allocated array will be destroyed" },
+                        { line: 3, col: 4, length: 3, message: "Returning pointer to local variable" }
+                    ],
+                    riddle: "I'm a pointer that's gone astray,\nPointing to where data once lay.\nAllocate me with some care,\nOr crashes will fill the air."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the infinite loop in this recursive React component:",
+                    originalCode: "function RecursiveComponent({ depth }) {\n    if (depth <= 0) return null;\n    return (\n        <div>\n            <RecursiveComponent depth={depth} />\n        </div>\n    );\n}",
+                    correctCode: "function RecursiveComponent({ depth }) {\n    if (depth <= 0) return null;\n    return (\n        <div>\n            <RecursiveComponent depth={depth - 1} />\n        </div>\n    );\n}",
+                    errors: [
+                        { line: 3, col: 12, length: 0, message: "Should decrement depth to avoid infinite recursion" }
+                    ],
+                    riddle: "I'm a component that calls myself,\nBut without care I'm bad for your health.\nDecrement my depth with each new birth,\nOr I'll crash your app and drain its worth."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the SQL injection vulnerability in this Python database query:",
+                    originalCode: "def get_user(username):\n    query = f\"SELECT * FROM users WHERE username = '{username}'\"\n    return execute_query(query)",
+                    correctCode: "def get_user(username):\n    query = \"SELECT * FROM users WHERE username = %s\"\n    return execute_query(query, (username,))",
+                    errors: [
+                        { line: 1, col: 16, length: 0, message: "Should use parameterized queries" }
+                    ],
+                    riddle: "I'm a query that seems just fine,\nBut string formatting is a dangerous sign.\nUse parameters to make it right,\nAnd keep your database safe and tight."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the XSS vulnerability in this React component:",
+                    originalCode: "function UserProfile({ userInput }) {\n    return <div dangerouslySetInnerHTML={{ __html: userInput }} />;\n}",
+                    correctCode: "function UserProfile({ userInput }) {\n    return <div>{userInput}</div>;\n}",
+                    errors: [
+                        { line: 1, col: 28, length: 0, message: "Avoid dangerouslySetInnerHTML with untrusted input" }
+                    ],
+                    riddle: "I render content from outside,\nBut without care I'll open wide.\nA door for scripts to run inside,\nSanitize me or hackers will ride."
+                },
+                {
+                    language: "C",
+                    question: "Fix the buffer overflow vulnerability in this C function:",
+                    originalCode: "void copyString(char* dest, char* src) {\n    strcpy(dest, src);\n}",
+                    correctCode: "void copyString(char* dest, char* src, size_t destSize) {\n    strncpy(dest, src, destSize - 1);\n    dest[destSize - 1] = '\\0';\n}",
+                    errors: [
+                        { line: 1, col: 0, length: 0, message: "Need to add buffer size parameter" },
+                        { line: 2, col: 4, length: 6, message: "Should use strncpy with length check" }
+                    ],
+                    riddle: "I copy data from here to there,\nBut without bounds I'll overflow where.\nLimit my length, truncate with care,\nOr hackers will exploit this affair."
+                },
+                {
+                    language: "Python",
+                    question: "Fix the thread-safety issue in this singleton implementation:",
+                    originalCode: "class Singleton:\n    _instance = None\n\n    def __new__(cls):\n        if cls._instance is None:\n            cls._instance = super().__new__(cls)\n        return cls._instance",
+                    correctCode: "from threading import Lock\n\nclass Singleton:\n    _instance = None\n    _lock = Lock()\n\n    def __new__(cls):\n        with cls._lock:\n            if cls._instance is None:\n                cls._instance = super().__new__(cls)\n        return cls._instance",
+                    errors: [
+                        { line: 1, col: 0, length: 0, message: "Need to import Lock" },
+                        { line: 5, col: 4, length: 0, message: "Need to add lock around instance creation" }
+                    ],
+                    riddle: "I'm a pattern, one of a kind,\nBut with threads I can lose my mind.\nLock my creation, keep me aligned,\nOr duplicates you may find."
+                },
+                {
+                    language: "JavaScript",
+                    question: "Fix the prototype pollution vulnerability in this function:",
+                    originalCode: "function merge(target, source) {\n    for (const key in source) {\n        target[key] = source[key];\n    }\n    return target;\n}",
+                    correctCode: "function merge(target, source) {\n    for (const key in source) {\n        if (source.hasOwnProperty(key)) {\n            target[key] = source[key];\n        }\n    }\n    return target;\n}",
+                    errors: [
+                        { line: 2, col: 4, length: 0, message: "Need to check hasOwnProperty" }
+                    ],
+                    riddle: "I merge objects, deep and wide,\nBut inherited props I shouldn't provide.\nCheck each key before I decide,\nOr prototype pollution will reside."
+                },
+                {
+                    language: "Java",
+                    question: "Fix the resource leak in this Java file reader:",
+                    originalCode: "String readFile(String path) {\n    BufferedReader reader = new BufferedReader(new FileReader(path));\n    return reader.readLine();\n}",
+                    correctCode: "String readFile(String path) throws IOException {\n    try (BufferedReader reader = new BufferedReader(new FileReader(path))) {\n        return reader.readLine();\n    }\n}",
+                    errors: [
+                        { line: 1, col: 0, length: 0, message: "Need to use try-with-resources" },
+                        { line: 1, col: 0, length: 0, message: "Need to declare throws IOException" }
+                    ],
+                    riddle: "I open files for you to read,\nBut if not closed, I'll make you bleed.\nWrap me up in a try so neat,\nAnd I'll close up when complete."
+                }
+            ]
+        };
+        
+        // DOM elements
+        const titleEl = document.getElementById('title');
+        const questionTextEl = document.getElementById('question-text');
+        const codeInputEl = document.getElementById('code-input');
+        const errorMarkersEl = document.getElementById('error-markers');
+        const hintTextEl = document.getElementById('hint-text');
+        const feedbackEl = document.getElementById('feedback');
+        const exampleContainerEl = document.getElementById('example-container');
+        const exampleCodeEl = document.getElementById('example-code');
+        const timeEl = document.getElementById('time');
+        const scoreEl = document.getElementById('score');
+        const checkBtn = document.getElementById('check-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const beginnerBtn = document.getElementById('beginner-btn');
+        const intermediateBtn = document.getElementById('intermediate-btn');
+        const proBtn = document.getElementById('pro-btn');
+        const progressBar = document.getElementById('progress-bar');
+        
+        // Initialize game
+        function initGame() {
+            createBinaryRain();
+            currentScore = 0;
+            timeLeft = 60;
+            currentQuestionIndex = 0;
+            questionsAnswered = 0;
+            questionsCorrect = 0;
+            updateScore();
+            updateProgress();
+            loadQuestion();
+            
+            // Set up event listeners
+            beginnerBtn.addEventListener('click', () => setDifficulty('beginner'));
+            intermediateBtn.addEventListener('click', () => setDifficulty('intermediate'));
+            proBtn.addEventListener('click', () => setDifficulty('pro'));
+            checkBtn.addEventListener('click', checkCode);
+            nextBtn.addEventListener('click', nextQuestion);
+            exitBtn.addEventListener('click', exitDebug);
+            
+            // Add typing effect to code editor
+            codeInputEl.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const binaryRain = document.getElementById('binaryRain');
+                binaryRain.innerHTML = '';
+                createBinaryRain();
+            });
+        }
+        
+        // Set difficulty level
+        function setDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+            currentQuestionIndex = 0;
+            questionsAnswered = 0;
+            questionsCorrect = 0;
+            currentScore = 0;
+            updateScore();
+            updateProgress();
+            
+            // Update UI
+            beginnerBtn.classList.remove('active');
+            intermediateBtn.classList.remove('active');
+            proBtn.classList.remove('active');
+            
+            if (difficulty === 'beginner') {
+                beginnerBtn.classList.add('active');
+                titleEl.textContent = "CODE DEBUGGER - BEGINNER";
+            } else if (difficulty === 'intermediate') {
+                intermediateBtn.classList.add('active');
+                titleEl.textContent = "CODE DEBUGGER - INTERMEDIATE";
+            } else {
+                proBtn.classList.add('active');
+                titleEl.textContent = "CODE DEBUGGER - PRO";
+            }
+            
+            loadQuestion();
+        }
+        
+        // Load a question
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 60;
+            updateTimer();
+            startTimer();
+            
+            // Reset UI
+            feedbackEl.style.display = 'block';
+            feedbackEl.className = 'feedback';
+            feedbackEl.innerHTML = `
+                <h3 style="margin-bottom: 15px; color: #00ffff;">⏳ WAITING FOR YOUR INPUT...</h3>
+                <p>Fix the code and click CHECK CODE to verify your solution!</p>
+            `;
+            
+            nextBtn.style.display = 'none';
+            nextBtn.disabled = true;
+            checkBtn.disabled = false;
+            exampleContainerEl.style.display = 'none';
+            errorMarkersEl.innerHTML = '';
+            
+            // Get current question
+            const currentQuestion = questions[currentDifficulty][currentQuestionIndex];
+            
+            // Load question data
+            questionTextEl.textContent = `${currentQuestion.language}: ${currentQuestion.question}`;
+            codeInputEl.value = currentQuestion.originalCode;
+            hintTextEl.textContent = currentQuestion.riddle;
+            
+            // Auto-resize textarea
+            codeInputEl.style.height = 'auto';
+            codeInputEl.style.height = (codeInputEl.scrollHeight) + 'px';
+            
+            // Highlight errors in the editor
+            highlightErrors(currentQuestion.errors);
+        }
+        
+        // Highlight errors in the editor
+        function highlightErrors(errors) {
+            errorMarkersEl.innerHTML = '';
+            const lines = codeInputEl.value.split('\n');
+            const lineHeight = 18; // Approximate line height in pixels
+            
+            errors.forEach(error => {
+                const marker = document.createElement('div');
+                marker.className = 'error-marker';
+                marker.title = error.message;
+                
+                // Calculate position
+                const top = error.line * lineHeight;
+                const left = error.col * 8; // Approximate character width
+                const width = error.length > 0 ? error.length * 8 : 8;
+                
+                marker.style.top = `${top}px`;
+                marker.style.left = `${left}px`;
+                marker.style.width = `${width}px`;
+                marker.style.height = `${lineHeight}px`;
+                
+                errorMarkersEl.appendChild(marker);
+            });
+        }
+        
+        // Check the user's code
+        function checkCode() {
+            clearInterval(timer);
+            checkBtn.disabled = true;
+            
+            const currentQuestion = questions[currentDifficulty][currentQuestionIndex];
+            
+            // Get user's code and normalize line endings
+            const userCode = codeInputEl.value.replace(/\r\n/g, '\n').trim();
+            const correctCode = currentQuestion.correctCode.replace(/\r\n/g, '\n').trim();
+            
+            // Calculate points (bonus for remaining time)
+            const basePoints = currentDifficulty === 'beginner' ? 20 : 
+                             currentDifficulty === 'intermediate' ? 30 : 50;
+            const timeBonus = Math.floor(timeLeft / 5);
+            const pointsEarned = basePoints + timeBonus;
+            
+            // Show feedback
+            feedbackEl.style.display = 'block';
+            exampleContainerEl.style.display = 'block';
+            exampleCodeEl.textContent = currentQuestion.correctCode;
+            
+            if (userCode === correctCode) {
+                questionsCorrect++;
+                feedbackEl.className = 'feedback correct';
+                feedbackEl.innerHTML = `
+                    <h3 style="margin-bottom: 15px; color: #00ff00;">✅ DEBUG SUCCESSFUL!</h3>
+                    <p style="margin-bottom: 10px;">+${pointsEarned} points (${basePoints} base + ${timeBonus} time bonus)</p>
+                    <div style="margin-top:10px">All errors fixed! Excellent debugging!</div>
+                `;
+                
+                // Update score and animate
+                currentScore += pointsEarned;
+                updateScore();
+                
+                // Update questions answered
+                questionsAnswered++;
+                updateProgress();
+            } else {
+                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.innerHTML = `
+                    <h3 style="margin-bottom: 15px; color: #ff0000;">❌ DEBUG FAILED</h3>
+                    <p>Some errors remain in your code.</p>
+                    <div style="margin-top:10px">Compare your solution with the correct one below.</div>
+                `;
+                animateShake();
+            }
+            
+            // Enable next button
+            nextBtn.style.display = 'inline-block';
+            nextBtn.disabled = false;
+        }
+        
+        // Load next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            // Check if we've reached the end of questions
+            if (currentQuestionIndex >= questions[currentDifficulty].length) {
+                showGameComplete();
+            } else {
+                loadQuestion();
+            }
+        }
+        
+        // Show game complete message
+        function showGameComplete() {
+            clearInterval(timer);
+            
+            const accuracy = Math.round((questionsCorrect / questions[currentDifficulty].length) * 100);
+            
+            // Store results in localStorage
+            localStorage.setItem('finalScore', currentScore);
+            localStorage.setItem('correctAnswers', questionsCorrect);
+            localStorage.setItem('totalQuestions', questions[currentDifficulty].length);
+            localStorage.setItem('difficulty', currentDifficulty);
+            
+            // Redirect to completion page
+            window.location.href = 'complete.html';
+        }
+        
+        // Start the timer
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    checkBtn.disabled = true;
+                    feedbackEl.className = 'feedback incorrect';
+                    feedbackEl.innerHTML = `
+                        <h3 style="margin-bottom: 15px; color: #ff0000;">⏰ TIME'S UP!</h3>
+                        <p>You ran out of time for this challenge.</p>
+                        <div style="margin-top:10px">The correct solution is shown below.</div>
+                    `;
+                    exampleContainerEl.style.display = 'block';
+                    nextBtn.style.display = 'inline-block';
+                    nextBtn.disabled = false;
+                    
+                    // Update questions answered
+                    questionsAnswered++;
+                    updateProgress();
+                }
+            }, 1000);
+        }
+        
+        // Update timer display
+        function updateTimer() {
+            timeEl.textContent = timeLeft;
+            
+            // Change color when time is running low
+            if (timeLeft <= 10) {
+                timeEl.style.color = '#ff0000';
+                timeEl.classList.add('blinking');
+            } else {
+                timeEl.style.color = '#ffff00';
+                timeEl.classList.remove('blinking');
+            }
+        }
+        
+        // Update score display
+        function updateScore() {
+            scoreEl.textContent = currentScore;
+            
+            // Animate score change
+            scoreEl.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                scoreEl.style.transform = 'scale(1)';
+            }, 300);
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const progress = (questionsAnswered / questions[currentDifficulty].length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        // Animate shake for incorrect answer
+        function animateShake() {
+            feedbackEl.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                feedbackEl.style.animation = '';
+            }, 500);
+        }
+        
+        // Exit debugger
+        function exitDebug() {
+            window.location.href = 'mainmenu.html';
+            progressBar.style.width = '0%';
+        }
+        
+        // Initialize the game when the page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>

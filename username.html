@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Syntax Puzzle - Enter Name</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      body {
+        background-color: #0d0d0d;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #00ffff;
+        text-align: center;
+        background: #010a13 url("background.jpg") no-repeat center center/cover;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1000px;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 50px;
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        border: 2px solid cyan;
+        text-align: center;
+        animation: fadeIn 1s ease-out;
+        position: relative;
+        z-index: 10;
+      }
+
+      .title {
+        font-size: 4.5rem;
+        color: #00ffff;
+        text-shadow: 0 0 10px #00ffff;
+        margin-bottom: 0.5rem;
+        animation: title-glow 2s infinite alternate, flicker 2s infinite;
+      }
+
+      @keyframes title-glow {
+        0% {
+          text-shadow: 0 0 10px #00ffff;
+        }
+        100% {
+          text-shadow: 0 0 20px #00ffff, 0 0 40px #008b8b;
+        }
+      }
+
+      .subtitle {
+        font-size: 20px;
+        color: #44bece;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+      }
+
+      h3 {
+        font-size: 30px;
+        color: #00ffff;
+        text-shadow: 0 0 10px cyan;
+        margin-bottom: 20px;
+      }
+
+      input {
+        background-color: #03071b;
+        width: 60%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 2px solid rgb(20, 255, 224);
+        background: transparent;
+        color: #ffffff;
+        font-size: 15px;
+        text-align: center;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgb(47, 241, 255);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-right: 30px;
+      }
+
+      input:focus {
+        outline: none;
+        box-shadow: 0 0 15px cyan;
+      }
+
+      .okay-btn {
+        width: 150px;
+        padding: 10px;
+        margin-top: 10px;
+        background: linear-gradient(to right, #0cf7ff4b, #0efffb);
+        color: #000;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        box-shadow: 0 0 10px cyan;
+        transition: 0.3s;
+        margin-bottom: 10px;
+        margin-left: 15px;
+        border: 2px solid rgb(0, 255, 255);
+        letter-spacing: 1px;
+      }
+
+      .okay-btn:hover {
+        background: #004e4e;
+        color: white;
+        box-shadow: 0 0 15px cyan;
+      }
+
+      .note {
+        font-size: 15px;
+        margin-top: 30px;
+        color: #f6ff00;
+        margin-bottom: 30px;
+        font-family: "Orbitron", sans-serif;
+        text-transform: uppercase;
+        word-spacing: 2px;
+        letter-spacing: 1px;
+      }
+
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #010a13;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        color: #00ffff;
+        font-family: "Orbitron", sans-serif;
+        letter-spacing: 1px;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(0, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #00ffff;
+        animation: spin 1s ease-in-out infinite;
+        margin-bottom: 20px;
+      }
+
+      .binary-rain {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .binary-digit {
+        position: absolute;
+        color: rgba(0, 255, 255, 0.3);
+        font-family: "Orbitron", sans-serif;
+        font-size: 16px;
+        user-select: none;
+        text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        animation: fall linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fall {
+        to {
+          transform: translateY(100vh);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="binary-rain" id="binaryRain"></div>
+
+    <div class="container">
+      <h1 class="title">SYNTAX PUZZLE</h1>
+      <h2 class="subtitle">Logic-Based Programming</h2>
+      <div class="input-box">
+        <h3>ENTER NAME</h3>
+        <input type="text" placeholder="Player Name" id="playerName" />
+        <button class="okay-btn">ENTER</button>
+      </div>
+      <p class="note">🏆 Your name will be used for the leaderboard! 🏆</p>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const okayButton = document.querySelector(".okay-btn");
+        const playerNameInput = document.getElementById("playerName");
+        const binaryRain = document.getElementById("binaryRain");
+
+        function createBinaryRain() {
+          const columns = Math.floor(window.innerWidth / 20);
+
+          for (let i = 0; i < columns; i++) {
+            const digit = document.createElement("div");
+            digit.className = "binary-digit";
+            digit.textContent = Math.random() > 0.5 ? "1" : "0";
+            digit.style.left = `${i * 20 + Math.random() * 10}px`;
+            digit.style.top = `${-20}px`;
+            digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+            digit.style.animationDelay = `${Math.random() * 5}s`;
+            digit.style.opacity = Math.random();
+            binaryRain.appendChild(digit);
+
+            digit.style.animation = `fall ${5 + Math.random() * 10}s linear ${
+              Math.random() * 5
+            }s infinite`;
+          }
+        }
+
+        createBinaryRain();
+        window.addEventListener("resize", function () {
+          const existingDigits = document.querySelectorAll(".binary-digit");
+          existingDigits.forEach((digit) => digit.remove());
+          createBinaryRain();
+        });
+
+        function handleUsernameSubmission() {
+          const username = playerNameInput.value.trim();
+
+          if (!username) {
+            window.location.href = "empty.html";
+            return;
+          }
+
+          document.body.innerHTML = `
+                    <div class="loading-screen">
+                        <div class="loading-spinner"></div>
+                        <p>LOADING PLEASE WAIT...</p>
+                    </div>
+                `;
+
+          localStorage.setItem("puzzleUsername", username);
+          localStorage.setItem("lastLogin", new Date().toISOString());
+
+          setTimeout(() => {
+            window.location.href = "mainmenu.html";
+          }, 1500);
+        }
+
+        okayButton.addEventListener("click", handleUsernameSubmission);
+        playerNameInput.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") handleUsernameSubmission();
+        });
+
+        playerNameInput.focus();
+
+        const savedUsername = localStorage.getItem("puzzleUsername");
+        if (savedUsername) {
+          playerNameInput.value = savedUsername;
+          playerNameInput.select();
+        }
+      });
+    </script>
+  </body>
+</html>

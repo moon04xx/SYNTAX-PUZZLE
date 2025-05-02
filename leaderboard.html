@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syntax Puzzle - Leaderboard</title>
+    <style>
+        /* Cyberpunk Base Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        body {
+            background-color: #0d0d0d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #00ffff;
+            background: #010a13 url('background.jpg') no-repeat center center/cover;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+            border: 2px solid cyan;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+            margin-bottom: 1rem;
+        }
+        
+        h2 {
+            font-size: 1rem;
+            color: #44bece;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        
+        /* Binary Rain Effect */
+        .binary-rain {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .binary-digit {
+            position: absolute;
+            color: rgba(0, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            user-select: none;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+            animation: fall linear infinite;
+        }
+        
+        /* Leaderboard Table */
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 2rem 0;
+            background: rgba(0, 20, 30, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .leaderboard-table th {
+            background: rgba(0, 255, 255, 0.2);
+            padding: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 15px;
+            color: #00ffff;
+        }
+        
+        .leaderboard-table td {
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .leaderboard-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .leaderboard-table tr:hover {
+            background: rgba(0, 255, 255, 0.05);
+        }
+        
+        /* Rank Column */
+        .rank {
+            font-weight: bold;
+            color: #11ff00;
+        }
+        
+        /* Highlight Current User */
+        .current-user {
+            background: rgba(0, 166, 255, 0.21) !important;
+            border-left: 3px solid #00ffff;
+            border-right: 3px solid #00ffff;
+        }
+        
+        /* Your Score Display */
+        .your-score {
+            margin: 1.5rem 0;
+            font-size: 13px;
+            color: #eeff00;
+            font-family: 'Orbitron', sans-serif;
+            word-spacing: 1px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .your-score span {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .menu-btn {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            border: 1px solid #00ffff;
+        }
+        
+        .menu-btn:hover {
+            background: rgba(0, 255, 255, 0.4);
+            box-shadow: 0 0 15px cyan;
+        }
+        
+        .exit-btn {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ffffff;
+            border: 1px solid #ff0000;
+        }
+        
+        .exit-btn:hover {
+            background: rgba(255, 0, 0, 0.4);
+            box-shadow: 0 0 15px #ff0505;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+    </style>
+</head>
+<body>
+    <div class="binary-rain" id="binaryRain"></div>
+    
+    <div class="container">
+        <h1>LEADERBOARD</h1>
+        <h2>Top Players Ranked by Score</h2>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>🏆 Rank</th>
+                    <th>🧑‍💻 Name</th>
+                    <th>🎯 Score</th>
+                    <th>🗓️ Date</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Leaderboard data will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+        
+        <div class="your-score" id="your-score-display">
+            Your Score: <span>Loading...</span>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn menu-btn" onclick="backToMainMenu()">~ BACK TO MAIN MENU</button>
+            <button class="btn exit-btn" onclick="exitGame()">EXIT</button>
+        </div>
+    </div>
+
+    <script>
+        // Binary Rain Effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const binaryRain = document.getElementById('binaryRain');
+            
+            function createBinaryRain() {
+                const columns = Math.floor(window.innerWidth / 20);
+                
+                for (let i = 0; i < columns; i++) {
+                    const digit = document.createElement('div');
+                    digit.className = 'binary-digit';
+                    digit.textContent = Math.random() > 0.5 ? '1' : '0';
+                    digit.style.left = `${(i * 20) + Math.random() * 10}px`;
+                    digit.style.top = `${-20}px`;
+                    digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+                    digit.style.animationDelay = `${Math.random() * 5}s`;
+                    digit.style.opacity = Math.random();
+                    binaryRain.appendChild(digit);
+                    
+                    digit.style.animation = `fall ${5 + Math.random() * 10}s linear ${Math.random() * 5}s infinite`;
+                }
+            }
+
+            createBinaryRain();
+
+            window.addEventListener('resize', function() {
+                const existingDigits = document.querySelectorAll('.binary-digit');
+                existingDigits.forEach(digit => digit.remove());
+                createBinaryRain();
+            });
+        });
+
+        // Initialize leaderboard in localStorage if it doesn't exist
+        if (!localStorage.getItem('leaderboard')) {
+            const defaultLeaderboard = [
+                { name: "NEO", score: 9850, date: "05-15-2023" },
+                { name: "TRINITY", score: 8720, date: "05-14-2023" },
+                { name: "MORPHEUS", score: 7650, date: "05-13-2023" },
+                { name: "CYPHER", score: 6540, date: "05-12-2023" },
+                { name: "TANK", score: 5430, date: "05-11-2023" },
+                { name: "DOZER", score: 4320, date: "05-10-2023" },
+                { name: "SWITCH", score: 3210, date: "05-09-2023" }
+            ];
+            localStorage.setItem('leaderboard', JSON.stringify(defaultLeaderboard));
+        }
+    
+        // Get current user data from localStorage
+        const currentUser = localStorage.getItem('puzzleUsername') || 'PLAYER';
+        const currentScore = localStorage.getItem('finalScore') || 0;
+        const currentDate = new Date().toLocaleDateString('en-US'); // Format: MM/DD/YYYY
+    
+        // Add current score to leaderboard if valid
+        if (currentScore > 0) {
+            const leaderboard = JSON.parse(localStorage.getItem('leaderboard'));
+            
+            // Ensure we have a valid username
+            const displayName = currentUser === 'PLAYER' ? 'ANON' : currentUser;
+            
+            // Find if user already exists in leaderboard
+            const existingUserIndex = leaderboard.findIndex(user => user.name === displayName);
+            
+            if (existingUserIndex !== -1) {
+                // User exists - add to their existing score
+                leaderboard[existingUserIndex].score += parseInt(currentScore);
+                // Update date
+                leaderboard[existingUserIndex].date = currentDate;
+            } else {
+                // New user - add to leaderboard
+                leaderboard.push({
+                    name: displayName,
+                    score: parseInt(currentScore),
+                    date: currentDate
+                });
+            }
+            
+            // Save updated leaderboard
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+            
+            // Clear the score so it doesn't get added again
+            localStorage.removeItem('finalScore');
+        }
+    
+        // Function to populate leaderboard
+        function populateLeaderboard() {
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            let leaderboard = JSON.parse(localStorage.getItem('leaderboard'));
+            
+            // Sort by score (descending)
+            leaderboard.sort((a, b) => b.score - a.score);
+            
+            // Display top 7
+            const top7 = leaderboard.slice(0, 7);
+            
+            leaderboardBody.innerHTML = '';
+            top7.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                if (entry.name === currentUser || (currentUser === 'PLAYER' && entry.name === 'ANON')) {
+                    row.classList.add('current-user');
+                }
+                
+                row.innerHTML = `
+                    <td class="rank">${index + 1}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.score.toLocaleString()}</td>
+                    <td>${entry.date}</td>
+                `;
+                
+                leaderboardBody.appendChild(row);
+            });
+            
+            // Update "Your Score" display
+            if (currentScore > 0) {
+                const userPosition = leaderboard.findIndex(user => 
+                    user.name === currentUser || (currentUser === 'PLAYER' && user.name === 'ANON')
+                ) + 1;
+                
+                if (userPosition > 0 && userPosition <= 7) {
+                    document.getElementById('your-score-display').innerHTML = `
+                        Your Score: <span>${currentScore.toLocaleString()}</span> 
+                        (Rank #${userPosition} - Keep pushing to the top!)
+                    `;
+                } else {
+                    document.getElementById('your-score-display').innerHTML = `
+                        Your Score: <span>${currentScore.toLocaleString()}</span><br>
+                        Great effort! Play again to reach the top 7!
+                    `;
+                }
+            } else {
+                document.getElementById('your-score-display').innerHTML = `
+                    Play a game to see your score here! The leaderboard awaits your name!
+                `;
+            }
+        }
+        
+        // Navigation functions
+        function backToMainMenu() {
+            window.location.href = 'mainmenu.html';
+        }
+        
+        function exitGame() {
+            window.location.href = 'username.html';
+        }
+        
+        // Initialize leaderboard when page loads
+        document.addEventListener('DOMContentLoaded', populateLeaderboard);
+    </script>
+</body>
+</html>

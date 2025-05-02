@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Syntax Puzzle - Main Menu</title>
+    <style>
+      /* Cyberpunk Base Styles */
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      body {
+        background-color: #0d0d0d;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: #00ffff;
+        background: #010a13 url("background.jpg") no-repeat center center/cover;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 800px;
+        background: rgba(0, 0, 0, 0.85);
+        padding: 50px;
+        border-radius: 15px;
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+        border: 2px solid cyan;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+        animation: fadeIn 1s ease-out;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        color: #00ffff;
+        text-shadow: 0 0 10px #00ffff;
+        margin-bottom: 10px;
+      }
+
+      h2 {
+        font-size: 1rem;
+        color: #44bece;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+      }
+
+      /* Menu Options */
+      .menu-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+
+      .menu-option {
+        position: relative;
+        background: rgba(0, 30, 40, 0.7);
+        border: 2px solid #0affef;
+        border-radius: 10px;
+        padding: 1.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        z-index: 1;
+        box-shadow: 0 0 15px rgba(45, 213, 255, 0.784);
+      }
+
+      .menu-option::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 50%;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 255, 255, 0.1) 0%,
+          transparent 100%
+        );
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .menu-option:hover::before {
+        opacity: 1;
+      }
+
+      .menu-option h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: #00ffff;
+      }
+
+      .menu-option p {
+        font-size: 13px;
+        color: #7bcbd49d;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Selection Effect */
+      .menu-option:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 25px cyan;
+      }
+
+      /* Status Message */
+      .status {
+        margin-top: 1.5rem;
+        font-size: 1rem;
+        color: #fff200;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Exit Button */
+      .exit-btn {
+        margin-top: 2rem;
+        padding: 0.8rem 1.5rem;
+        background: rgba(255, 0, 0, 0.2);
+        color: #f7f6f6;
+        border: 1px solid #ff0000;
+        box-shadow: 0 0 15px #ff0000;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .exit-btn:hover {
+        background: rgba(255, 0, 0, 0.4);
+        box-shadow: 0 0 15px #ff0505;
+      }
+
+      /* Binary Rain Effect */
+      .binary-rain {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+      }
+
+      .binary-digit {
+        position: absolute;
+        color: rgba(0, 255, 255, 0.3);
+        font-family: "Orbitron", monospace;
+        font-size: 16px;
+        user-select: none;
+        text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        animation: fall linear infinite;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fall {
+        to {
+          transform: translateY(100vh);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="binary-rain" id="binaryRain"></div>
+
+    <div class="container">
+      <h1>MAIN MENU</h1>
+      <h2>GET READY TO PLAY OR SEE WHO'S ON TOP!</h2>
+
+      <div class="menu-grid">
+        <!-- Start Game Option -->
+        <div class="menu-option" onclick="startGame()">
+          <h3>▶️ START GAME</h3>
+          <p>Begin your programming challenge</p>
+        </div>
+
+        <!-- Leaderboard Option -->
+        <div class="menu-option" onclick="showLeaderboard()">
+          <h3>🏆 LEADERBOARD</h3>
+          <p>View top scores and achievements</p>
+        </div>
+      </div>
+
+      <p class="status" id="statusMessage">Select an option to continue</p>
+
+      <button class="exit-btn" onclick="location.href='username.html'">
+        EXIT
+      </button>
+    </div>
+
+    <script>
+      // Binary Rain Effect
+      document.addEventListener("DOMContentLoaded", function () {
+        const binaryRain = document.getElementById("binaryRain");
+
+        function createBinaryRain() {
+          const columns = Math.floor(window.innerWidth / 20);
+
+          for (let i = 0; i < columns; i++) {
+            const digit = document.createElement("div");
+            digit.className = "binary-digit";
+            digit.textContent = Math.random() > 0.5 ? "1" : "0";
+            digit.style.left = `${i * 20 + Math.random() * 10}px`;
+            digit.style.top = `${-20}px`;
+            digit.style.animationDuration = `${5 + Math.random() * 10}s`;
+            digit.style.animationDelay = `${Math.random() * 5}s`;
+            digit.style.opacity = Math.random();
+            binaryRain.appendChild(digit);
+
+            digit.style.animation = `fall ${5 + Math.random() * 10}s linear ${
+              Math.random() * 5
+            }s infinite`;
+          }
+        }
+
+        createBinaryRain();
+
+        window.addEventListener("resize", function () {
+          const existingDigits = document.querySelectorAll(".binary-digit");
+          existingDigits.forEach((digit) => digit.remove());
+          createBinaryRain();
+        });
+      });
+
+      function startGame() {
+        document.getElementById("statusMessage").textContent =
+          "Loading game...";
+        setTimeout(() => {
+          window.location.href = "start.html";
+        }, 500);
+      }
+
+      function showLeaderboard() {
+        document.getElementById("statusMessage").textContent =
+          "Loading leaderboard...";
+        setTimeout(() => {
+          window.location.href = "leaderboard.html";
+        }, 500);
+      }
+
+      // Add some visual feedback when hovering menu options
+      document.querySelectorAll(".menu-option").forEach((option) => {
+        option.addEventListener("mouseenter", function () {
+          const action = this.querySelector("h3").textContent;
+          document.getElementById(
+            "statusMessage"
+          ).textContent = `Ready for: ${action}`;
+        });
+
+        option.addEventListener("mouseleave", function () {
+          document.getElementById("statusMessage").textContent =
+            "Select an option to continue";
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,41 +1,44 @@
-##🧩 Syntax Puzzle: Logic-Focused Programming
+🧩 Syntax Puzzle: Logic-Focused Programming
+
 Syntax Puzzle is a web-based mini game that helps students enhance their programming logic and syntax skills through interactive challenges. Developed using HTML, CSS, and JavaScript, this game offers a fun and engaging way to practice debugging and answer multiple-choice syntax questions.
 
 🎯 Features
 🔐 User Login – Simple login system to track user scores (no backend required).
-
 🏠 Main Menu – Navigate game modes and view the leaderboard.
-
 🎮 Game Modes:
-
-Multiple Choice Mode – Choose from Easy, Medium, or Hard difficulty levels.
-
-Debug Mode – Identify and fix syntax or logic errors in code snippets.
-
+       1. Multiple Choice Mode – Choose from Easy, Medium, or Hard difficulty levels.
+       2. Debug Mode – Identify and fix syntax or logic errors in code snippets.
 🏆 Leaderboard – View top player scores.
-
 ✅ Challenge Completion Screen – Displays after completing all game modes.
-
 ⚙️ Beginner-Friendly – Lightweight, offline-capable, and ideal for students; no database or server setup needed.
 
 
-
 📂 Project Structure
-
 project-folder/
-│
-├── background.jpg           # Background image asset
-├── username.html            # Login page for entering username
-├── start.html               # Initial launcher or redirect page
-├── mainmenu.html            # Main menu with game and leaderboard access
-├── levelsmultiple.html      # Difficulty selector for Multiple Choice mode
-├── easy.html                # Easy-level syntax questions
-├── medium.html              # Medium-level syntax questions
-├── hard.html                # Hard-level syntax questions
-├── debugmode.html           # Debug Mode challenges
-├── complete.html            # Challenge Completion screen
-├── leaderboard.html         # Displays user scores
-└── empty.html               # Optional placeholder page
+1. background.jpg           # Background image asset
+
+2. username.html            # Login page for entering username
+
+3. start.html               # Initial launcher or redirect page
+
+4.mainmenu.html            # Main menu with game and leaderboard access
+
+5. levelsmultiple.html      # Difficulty selector for Multiple Choice mode
+
+6. easy.html                # Easy-level syntax questions
+
+7. medium.html              # Medium-level syntax questions
+
+8. hard.html                # Hard-level syntax questions
+
+9. debugmode.html           # Debug Mode challenges
+
+10. complete.html            # Challenge Completion screen
+
+11. leaderboard.html         # Displays user scores
+
+12.empty.html               # Optional placeholder page
+
 
 🚀 Getting Started
 

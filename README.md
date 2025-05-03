@@ -6,8 +6,8 @@ FEATURES
 
 User Login – Simple login system to track user scores (no backend required).
 Main Menu – Navigate game modes and view the leaderboard.
-Game Modes:
-       1. Multiple Choice Mode – Choose from Easy, Medium, or Hard difficulty levels.
+Game Modes:     
+       1. Multiple Choice Mode – Choose from Easy, Medium, or Hard difficulty levels. 
        2. Debug Mode – Identify and fix syntax or logic errors in code snippets.
 Leaderboard – View top player scores.
 Challenge Completion Screen – Displays after completing all game modes.

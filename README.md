@@ -1,4 +1,4 @@
-🧩 Syntax Puzzle: Logic-Focused Programming
+##🧩 Syntax Puzzle: Logic-Focused Programming
 Syntax Puzzle is a web-based mini game that helps students enhance their programming logic and syntax skills through interactive challenges. Developed using HTML, CSS, and JavaScript, this game offers a fun and engaging way to practice debugging and answer multiple-choice syntax questions.
 
 🎯 Features
